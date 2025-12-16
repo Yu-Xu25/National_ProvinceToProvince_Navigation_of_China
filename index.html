@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Province to Province Navigation of China</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #dc2626;
+            --accent-light: #ef4444;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: var(--gray-800);
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--gray-600);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        select {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 2px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-800);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            font-family: inherit;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: inherit;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-toggle {
+            background: var(--gray-100);
+            color: var(--gray-800);
+            border: 2px solid var(--gray-200);
+        }
+
+        .btn-toggle:hover {
+            background: var(--gray-200);
+            border-color: var(--primary);
+        }
+
+        .btn-toggle.active {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--white) 100%);
+            border-left: 5px solid var(--accent);
+            padding: 30px;
+            margin-top: 30px;
+            display: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 15px;
+            font-size: 1.1em;
+            color: var(--gray-800);
+        }
+
+        .path-list {
+            line-height: 2.2;
+            font-size: 16px;
+            padding: 15px;
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .step {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .step:hover {
+            background: var(--gray-100);
+            transform: scale(1.05);
+        }
+
+        .arrow {
+            color: var(--primary);
+            margin: 0 8px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .visited-node {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.05em;
+        }
+
+        .transit-node {
+            color: var(--gray-600);
+            font-size: 0.95em;
+        }
+
+        .map-note {
+            font-size: 0.9em;
+            color: var(--gray-600);
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            background: var(--gray-100);
+            border-radius: 8px;
+        }
+
+        .translation-info {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 0.85em;
+            color: var(--gray-600);
+            font-weight: normal;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button id="languageToggle" class="btn-toggle" onclick="toggleLanguage()"
+                style="font-size: 14px; padding: 8px 16px;">
+                <span id="languageToggleText">中文</span>
+            </button>
+        </div>
+
+        <h1 id="pageTitle">National Province to Province Navigation of China</h1>
+        <p class="subtitle" id="pageSubtitle">Select start and end points to generate a route visiting all connected
+            provinces</p>
+
+        <div class="controls">
+            <select id="startProv">
+                <option value="" disabled selected id="startProvPlaceholder">Start Province</option>
+            </select>
+            <select id="endProv">
+                <option value="" disabled selected id="endProvPlaceholder">End Province</option>
+            </select>
+            <button class="btn-primary" onclick="calculatePath()" id="generateBtn">Generate Route</button>
+        </div>
+
+        <div id="output" class="result-box">
+            <div class="stats">
+                <span id="totalSteps"></span>
+                <span id="coverage"></span>
+            </div>
+            <div class="path-list" id="pathDisplay"></div>
+        </div>
+
+        <div class="map-note" id="mapNote">
+            Note: Optimization uses a "Nearest Neighbor" heuristic. '台' (Taiwan) is excluded as per isolation rules.
+        </div>
+    </div>
+
+    <script>
+        // --- LANGUAGE TRANSLATION SYSTEM ---
+        let currentLanguage = 'en'; // 'en' or 'zh'
+
+        const translations = {
+            en: {
+                pageTitle: 'National Province to Province Navigation of China',
+                pageSubtitle: 'Select start and end points to generate a route visiting all connected provinces',
+                startProvince: 'Start Province',
+                endProvince: 'End Province',
+                generateRoute: 'Generate Route',
+                totalMoves: 'Total Moves',
+                coverage: 'Coverage',
+                coverageText: '100% of connected China',
+                mapNote: 'Note: Optimization uses a "Nearest Neighbor" heuristic. \'台\' (Taiwan) is excluded as per isolation rules.',
+                selectBoth: 'Please select both a starting and ending province.',
+                languageToggle: '中文'
+            },
+            zh: {
+                pageTitle: '中国省际导航系统',
+                pageSubtitle: '选择起点和终点，生成访问所有相连省份的路线',
+                startProvince: '起始省份',
+                endProvince: '目标省份',
+                generateRoute: '生成路线',
+                totalMoves: '总步数',
+                coverage: '覆盖率',
+                coverageText: '100% 已连接的中国省份',
+                mapNote: '注意：优化使用"最近邻"启发式算法。根据隔离规则，\'台\'（台湾）已被排除。',
+                selectBoth: '请同时选择起始省份和目标省份。',
+                languageToggle: 'English'
+            }
+        };
+
+        // Function to update all UI text based on current language
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+
+            // Update page elements
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('pageSubtitle').textContent = t.pageSubtitle;
+            document.getElementById('startProvPlaceholder').textContent = t.startProvince;
+            document.getElementById('endProvPlaceholder').textContent = t.endProvince;
+            document.getElementById('generateBtn').textContent = t.generateRoute;
+            document.getElementById('mapNote').textContent = t.mapNote;
+            document.getElementById('languageToggleText').textContent = t.languageToggle;
+
+            // Update HTML lang attribute
+            document.documentElement.lang = currentLanguage;
+
+            // Update dropdowns
+            updateDropdowns();
+
+            // Re-render results if displayed
+            const outputBox = document.getElementById('output');
+            if (outputBox.style.display === 'block') {
+                calculatePath();
+            }
+        }
+
+        // Language toggle function
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+            updateLanguage();
+        }
+
+        // --- DATA CONFIGURATION ---
+        const PROVINCES = {
+            '黑': 'Heilongjiang', '吉': 'Jilin', '辽': 'Liaoning', '京': 'Beijing', '津': 'Tianjin',
+            '蒙': 'Inner Mongolia', '甘': 'Gansu', '宁': 'Ningxia', '陕': 'Shaanxi', '晋': 'Shanxi',
+            '冀': 'Hebei', '鲁': 'Shandong', '豫': 'Henan', '新': 'Xinjiang', '青': 'Qinghai',
+            '藏': 'Tibet', '川': 'Sichuan', '渝': 'Chongqing', '黔': 'Guizhou', '云': 'Yunnan',
+            '桂': 'Guangxi', '粤': 'Guangdong', '琼': 'Hainan', '澳': 'Macau', '港': 'Hong Kong',
+            '闽': 'Fujian', '鄂': 'Hubei', '湘': 'Hunan', '赣': 'Jiangxi', '皖': 'Anhui',
+            '苏': 'Jiangsu', '沪': 'Shanghai', '浙': 'Zhejiang', '台': 'Taiwan'
+        };
+
+        // Full Chinese names mapping
+        const CHINESE_NAMES = {
+            '黑': '黑龙江', '吉': '吉林', '辽': '辽宁', '京': '北京', '津': '天津',
+            '蒙': '内蒙古', '甘': '甘肃', '宁': '宁夏', '陕': '陕西', '晋': '山西',
+            '冀': '河北', '鲁': '山东', '豫': '河南', '新': '新疆', '青': '青海',
+            '藏': '西藏', '川': '四川', '渝': '重庆', '黔': '贵州', '云': '云南',
+            '桂': '广西', '粤': '广东', '琼': '海南', '澳': '澳门', '港': '香港',
+            '闽': '福建', '鄂': '湖北', '湘': '湖南', '赣': '江西', '皖': '安徽',
+            '苏': '江苏', '沪': '上海', '浙': '浙江', '台': '台湾'
+        };
+
+        // Raw adjacency list provided by user
+        const RAW_ADJACENCY = {
+            '黑': ['吉', '蒙'], '吉': ['黑', '辽', '蒙'], '辽': ['吉', '冀', '蒙'], '京': ['冀', '津'],
+            '津': ['冀', '京'], '蒙': ['吉', '辽', '冀', '黑', '甘', '宁', '陕', '晋'], '甘': ['蒙', '新', '青', '宁', '陕', '川'],
+            '宁': ['蒙', '甘', '陕'], '陕': ['蒙', '甘', '宁', '晋', '豫', '鄂', '川', '渝'],
+            '晋': ['蒙', '豫', '陕', '冀'], '冀': ['辽', '京', '津', '蒙', '晋', '豫', '鲁'], '鲁': ['豫', '皖', '苏', '冀'],
+            '豫': ['陕', '晋', '鲁', '鄂', '皖', '冀'], '新': ['甘', '青', '藏'], '青': ['新', '甘', '川', '藏'],
+            '藏': ['新', '青', '川', '云'], '川': ['青', '甘', '陕', '渝', '黔', '云', '藏'],
+            '渝': ['陕', '川', '黔', '鄂', '湘'], '黔': ['川', '渝', '云', '桂', '湘'],
+            '云': ['藏', '川', '黔', '桂'], '桂': ['云', '黔', '湘', '粤'],
+            '粤': ['桂', '湘', '赣', '闽', '琼', '港', '澳'], '琼': ['粤'], '澳': ['粤'], '港': ['粤'],
+            '闽': ['浙', '赣', '粤'], '鄂': ['陕', '豫', '皖', '赣', '湘', '渝'],
+            '湘': ['鄂', '赣', '粤', '桂', '黔', '渝'], '赣': ['鄂', '皖', '浙', '闽', '粤', '湘'],
+            '皖': ['鲁', '豫', '鄂', '赣', '苏', '浙'], '苏': ['鲁', '皖', '沪', '浙'],
+            '沪': ['苏', '浙'], '浙': ['沪', '苏', '皖', '赣', '闽'], '台': []
+        };
+
+        // --- PRE-PROCESSING ---
+        // Normalize graph (ensure bidirectionality) and get list of valid nodes
+        const GRAPH = {};
+        const VALID_NODES = [];
+
+        // Initialize
+        for (let key in PROVINCES) {
+            if (key !== '台') VALID_NODES.push(key); // Exclude Taiwan
+            if (!GRAPH[key]) GRAPH[key] = new Set();
+        }
+
+        // Populate Graph
+        for (let node in RAW_ADJACENCY) {
+            RAW_ADJACENCY[node].forEach(neighbor => {
+                if (GRAPH[node] && GRAPH[neighbor]) {
+                    GRAPH[node].add(neighbor);
+                    GRAPH[neighbor].add(node);
+                }
+            });
+        }
+
+        // Convert Sets back to Arrays for easier iteration
+        for (let key in GRAPH) {
+            GRAPH[key] = Array.from(GRAPH[key]);
+        }
+
+        // --- UI INITIALIZATION ---
+        const startSelect = document.getElementById('startProv');
+        const endSelect = document.getElementById('endProv');
+
+        // Function to get display name based on current language
+        function getDisplayName(key) {
+            const english = PROVINCES[key];
+            const chinese = CHINESE_NAMES[key];
+
+            if (currentLanguage === 'zh') {
+                return `${chinese} (${english})`;
+            } else {
+                return `${english} (${chinese})`;
+            }
+        }
+
+        // Function to get display name for path rendering
+        function getPathDisplayName(key) {
+            const english = PROVINCES[key];
+            const chinese = CHINESE_NAMES[key];
+
+            if (currentLanguage === 'zh') {
+                return `${chinese} <span class="translation-info">(${english})</span>`;
+            } else {
+                return `${english} <span class="translation-info">(${chinese})</span>`;
+            }
+        }
+
+        // Function to update dropdown options
+        function updateDropdowns() {
+            // Clear existing options (except the first placeholder)
+            while (startSelect.options.length > 1) startSelect.remove(1);
+            while (endSelect.options.length > 1) endSelect.remove(1);
+
+            // Sort provinces by Pinyin/English name for easier finding in dropdown
+            const sortedProvinces = Object.entries(PROVINCES)
+                .filter(([key]) => key !== '台')
+                .sort((a, b) => a[1].localeCompare(b[1]));
+
+            sortedProvinces.forEach(([key, name]) => {
+                const displayText = getDisplayName(key);
+                let option = new Option(displayText, key);
+                let option2 = new Option(displayText, key);
+                startSelect.add(option);
+                endSelect.add(option2);
+            });
+        }
+
+        // Initialize dropdowns
+        updateDropdowns();
+
+        // Initialize language on page load
+        updateLanguage();
+
+        // --- ALGORITHM IMPLEMENTATION ---
+
+        // 1. BFS for shortest path between any two nodes
+        function getShortestPath(start, end) {
+            if (start === end) return [start];
+            let queue = [[start]];
+            let visited = new Set([start]);
+
+            while (queue.length > 0) {
+                let path = queue.shift();
+                let node = path[path.length - 1];
+
+                if (node === end) return path;
+
+                for (let neighbor of GRAPH[node]) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        let newPath = [...path, neighbor];
+                        queue.push(newPath);
+                    }
+                }
+            }
+            return []; // Should not happen in connected graph
+        }
+
+        // 2. Precompute all-pairs distances (Optimized for repeated lookups)
+        const DISTANCE_MATRIX = {};
+        VALID_NODES.forEach(start => {
+            DISTANCE_MATRIX[start] = {};
+            VALID_NODES.forEach(end => {
+                // We only store distance length for the heuristic
+                DISTANCE_MATRIX[start][end] = getShortestPath(start, end).length - 1;
+            });
+        });
+
+        // 3. Main Solver: Greedy Nearest Neighbor
+        function calculatePath() {
+            const startNode = startSelect.value;
+            const endNode = endSelect.value;
+
+            if (!startNode || !endNode) {
+                alert(translations[currentLanguage].selectBoth);
+                return;
+            }
+
+            // Set of targets we must visit
+            let targets = new Set(VALID_NODES);
+            let pathHistory = [];
+
+            // Algorithm State
+            let current = startNode;
+            targets.delete(current);
+            pathHistory.push({ node: current, isTarget: true });
+
+            // While there are unvisited targets
+            while (targets.size > 0) {
+                let bestNextNode = null;
+                let minDist = Infinity;
+
+                // Find the closest unvisited target
+                // Optimization: If targets.size is 1 (only the end is left? No, end might not be the last visited)
+                // Note: We treat 'endNode' specially. We prefer to visit other nodes first
+                // so we don't accidentally finish at EndNode with others remaining.
+
+                let potentialTargets = Array.from(targets);
+
+                // Filter: Try to avoid the 'EndNode' unless it's the only one left
+                let nonEndTargets = potentialTargets.filter(t => t !== endNode);
+                let searchSpace = (nonEndTargets.length > 0) ? nonEndTargets : potentialTargets;
+
+                for (let target of searchSpace) {
+                    let dist = DISTANCE_MATRIX[current][target];
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestNextNode = target;
+                    }
+                }
+
+                // Navigate to the best next node
+                let segment = getShortestPath(current, bestNextNode);
+
+                // Add segment to history (skipping the first element as it's the current node)
+                for (let i = 1; i < segment.length; i++) {
+                    let step = segment[i];
+                    let isNewTarget = targets.has(step);
+
+                    pathHistory.push({
+                        node: step,
+                        isTarget: isNewTarget
+                    });
+
+                    if (isNewTarget) {
+                        targets.delete(step);
+                    }
+                    current = step;
+                }
+            }
+
+            // Finally, go from current to EndNode (if not already there)
+            if (current !== endNode) {
+                let finalSegment = getShortestPath(current, endNode);
+                for (let i = 1; i < finalSegment.length; i++) {
+                    pathHistory.push({
+                        node: finalSegment[i],
+                        isTarget: false // EndNode logic handled in loop, or marked here
+                    });
+                }
+            }
+
+            renderResult(pathHistory, startNode, endNode);
+        }
+
+        // --- RENDER LOGIC ---
+        function renderResult(history, start, end) {
+            const display = document.getElementById('pathDisplay');
+            const box = document.getElementById('output');
+            const t = translations[currentLanguage];
+
+            // Clear previous
+            display.innerHTML = '';
+
+            // Stats
+            document.getElementById('totalSteps').innerText = `${t.totalMoves}: ${history.length - 1}`;
+            document.getElementById('coverage').innerText = `${t.coverage}: ${t.coverageText}`;
+
+            // Render Nodes
+            let html = '';
+            history.forEach((step, index) => {
+                let label = getPathDisplayName(step.node);
+
+                let className = 'step';
+                if (index === 0 || index === history.length - 1) className += ' visited-node'; // Start/End
+                else if (step.isTarget) className += ' visited-node'; // First time visit
+                else className += ' transit-node'; // Just passing through
+
+                html += `<span class="${className}">${label}</span>`;
+
+                if (index < history.length - 1) {
+                    html += `<span class="arrow">→</span>`;
+                }
+            });
+
+            display.innerHTML = html;
+            box.style.display = 'block';
+        }
+    </script>
+
+</body>
+
+</html>
